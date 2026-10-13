@@ -6,6 +6,7 @@ esphome:
 wifi:
   ssid: "Quickmill5D"
   password: "2046quickmill24"
+  fast_connect: true
 
 logger:
 
