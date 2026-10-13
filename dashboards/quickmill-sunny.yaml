@@ -1,0 +1,83 @@
+title: QuickMill Sunny
+views:
+  - title: Übersicht
+    cards:
+      - type: entities
+        title: Temperaturen
+        entities:
+          - entity: sensor.sunny_brew_temp_c
+            name: Aktuell Brühtemperatur
+          - entity: sensor.sunny_setpoint_coffee
+            name: Soll Brühtemperatur
+          - entity: sensor.sunny_setpoint_steam
+            name: Soll Dampftemperatur
+          - entity: sensor.sunny_service_temp
+            name: Aktuell Dampftemperatur
+      - type: entities
+        title: Single Shot
+        entities:
+          - entity: number.sunny_single_preinfusion_s
+            name: Vorbrühung
+          - entity: number.sunny_single_infusion_s
+            name: Brühzeit
+      - type: entities
+        title: Double Shot
+        entities:
+          - entity: number.sunny_double_preinfusion_s
+            name: Vorbrühung
+          - entity: number.sunny_double_infusion_s
+            name: Brühzeit
+          - entity: number.sunny_water_dose_s
+            name: Wasserbezug
+      - type: entities
+        title: Steuerung
+        entities:
+          - entity: switch.sunny_kaffee_starten
+            name: Kaffee starten/stoppen
+          - entity: switch.sunny_dampf_ein
+            name: Dampf
+          - entity: switch.sunny_eco_mode
+            name: Eco Modus
+          - entity: switch.sunny_standby
+            name: Standby
+          - entity: switch.sunny_neustart
+            name: Neustart
+      - type: entities
+        title: Filter & Statistik
+        entities:
+          - entity: number.sunny_filter_life
+            name: Filter-Lebensdauer
+          - entity: sensor.sunny_total_counter
+            name: Gesamtbrühungen
+          - entity: sensor.sunny_partial_counter
+            name: Letzte Brühung
+  - title: Einstellungen
+    cards:
+      - type: entities
+        title: Temperaturen einstellen
+        entities:
+          - entity: number.sunny_setpoint_coffee
+            name: Brühtemperatur
+          - entity: number.sunny_setpoint_steam
+            name: Dampftemperatur
+      - type: entities
+        title: Single Shot einstellen
+        entities:
+          - entity: number.sunny_single_preinfusion_s
+            name: Vorbrühung
+          - entity: number.sunny_single_infusion_s
+            name: Brühzeit
+      - type: entities
+        title: Double Shot einstellen
+        entities:
+          - entity: number.sunny_double_preinfusion_s
+            name: Vorbrühung
+          - entity: number.sunny_double_infusion_s
+            name: Brühzeit
+          - entity: number.sunny_water_dose_s
+            name: Wasserbezug
+      - type: entities
+        title: Filter
+        entities:
+          - entity: number.sunny_filter_life
+            name: Filter-Lebensdauer

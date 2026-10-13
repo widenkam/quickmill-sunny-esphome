@@ -1,0 +1,330 @@
+esphome:
+  name: quickmill-sunny-bridge
+  platform: ESP32
+  board: esp32dev
+
+wifi:
+  ssid: "Quickmill5D"
+  password: "2046quickmill24"
+
+logger:
+
+api:
+  encryption:
+    key: "DEIN_ESPHOME_API_KEY"
+
+ota:
+  password: "OTA_PASSWORT"
+
+http_request:
+  useragent: esphome/quickmill-sunny-bridge
+  timeout: 30s
+
+sensor:
+  - platform: template
+    name: "Sunny Brew Temp C"
+    id: sunny_brew_temp
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+
+  - platform: template
+    name: "Sunny Service Temp C"
+    id: sunny_service_temp
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+
+  - platform: template
+    name: "Sunny Stato"
+    id: sunny_stato
+
+  - platform: template
+    name: "Sunny Livello H2O"
+    id: sunny_livello
+
+  - platform: template
+    name: "Sunny Single Preinfusion"
+    id: sunny_single_preinf
+    unit_of_measurement: "s"
+
+  - platform: template
+    name: "Sunny Single Infusion"
+    id: sunny_single_inf
+    unit_of_measurement: "s"
+
+  - platform: template
+    name: "Sunny Double Preinfusion"
+    id: sunny_double_preinf
+    unit_of_measurement: "s"
+
+  - platform: template
+    name: "Sunny Double Infusion"
+    id: sunny_double_inf
+    unit_of_measurement: "s"
+
+  - platform: template
+    name: "Sunny Water Dose"
+    id: sunny_water_dose
+    unit_of_measurement: "s"
+
+  - platform: template
+    name: "Sunny Setpoint Coffee"
+    id: sunny_setpoint_coffee
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+
+  - platform: template
+    name: "Sunny Setpoint Steam"
+    id: sunny_setpoint_steam
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+
+  - platform: template
+    name: "Sunny Filter Life"
+    id: sunny_filter_life
+    unit_of_measurement: "h"
+
+  - platform: template
+    name: "Sunny Total Counter"
+    id: sunny_total_counter
+
+  - platform: template
+    name: "Sunny Partial Counter"
+    id: sunny_partial_counter
+
+interval:
+  - interval: 30s
+    then:
+      - http_request.get:
+          url: "http://192.168.1.1/getConfig"
+          capture_response: true
+          on_response:
+            then:
+              - lambda: |-
+                  json::parse_json(body, [](JsonObject root) -> bool {
+                    if (root.containsKey("coffeeTemperature_C"))
+                      id(sunny_brew_temp).publish_state(root["coffeeTemperature_C"]);
+                    if (root.containsKey("serviceTemperature_C"))
+                      id(sunny_service_temp).publish_state(root["serviceTemperature_C"]);
+                    if (root.containsKey("statoMacchina"))
+                      id(sunny_stato).publish_state(root["statoMacchina"]);
+                    if (root.containsKey("livello_H2O"))
+                      id(sunny_livello).publish_state(root["livello_H2O"]);
+                    if (root.containsKey("Dose1preinfusion"))
+                      id(sunny_single_preinf).publish_state(root["Dose1preinfusion"]);
+                    if (root.containsKey("Dose1Infusion"))
+                      id(sunny_single_inf).publish_state(root["Dose1Infusion"]);
+                    if (root.containsKey("Dose2preinfusion"))
+                      id(sunny_double_preinf).publish_state(root["Dose2preinfusion"]);
+                    if (root.containsKey("Dose2Infusion"))
+                      id(sunny_double_inf).publish_state(root["Dose2Infusion"]);
+                    if (root.containsKey("DoseWater"))
+                      id(sunny_water_dose).publish_state(root["DoseWater"]);
+                    if (root.containsKey("setpoint_Group"))
+                      id(sunny_setpoint_coffee).publish_state(root["setpoint_Group"]);
+                    if (root.containsKey("setpoint_Service"))
+                      id(sunny_setpoint_steam).publish_state(root["setpoint_Service"]);
+                    if (root.containsKey("lifeFilter"))
+                      id(sunny_filter_life).publish_state(root["lifeFilter"]);
+                    if (root.containsKey("CoffeAll"))
+                      id(sunny_total_counter).publish_state(root["CoffeAll"]);
+                    if (root.containsKey("CoffePartial"))
+                      id(sunny_partial_counter).publish_state(root["CoffePartial"]);
+                    return true;
+                  });
+
+number:
+  - platform: template
+    name: "Sunny Single Preinfusion [s]"
+    id: num_single_preinf
+    unit_of_measurement: "s"
+    min_value: 0
+    max_value: 30
+    step: 1
+    initial_value: 3
+    optimistic: true
+    set_action:
+      - http_request.post:
+          url: "http://192.168.1.1/setDose1preinf/!{{ value | int }}"
+          headers:
+            Content-Type: "application/json"
+
+  - platform: template
+    name: "Sunny Single Infusion [s]"
+    id: num_single_inf
+    unit_of_measurement: "s"
+    min_value: 5
+    max_value: 99
+    step: 1
+    initial_value: 25
+    optimistic: true
+    set_action:
+      - http_request.post:
+          url: "http://192.168.1.1/setDose1inf/!{{ value | int }}"
+          headers:
+            Content-Type: "application/json"
+
+  - platform: template
+    name: "Sunny Double Preinfusion [s]"
+    id: num_double_preinf
+    unit_of_measurement: "s"
+    min_value: 0
+    max_value: 30
+    step: 1
+    initial_value: 9
+    optimistic: true
+    set_action:
+      - http_request.post:
+          url: "http://192.168.1.1/setDose2preinf/!{{ value | int }}"
+          headers:
+            Content-Type: "application/json"
+
+  - platform: template
+    name: "Sunny Double Infusion [s]"
+    id: num_double_inf
+    unit_of_measurement: "s"
+    min_value: 5
+    max_value: 99
+    step: 1
+    initial_value: 16
+    optimistic: true
+    set_action:
+      - http_request.post:
+          url: "http://192.168.1.1/setDose2inf/!{{ value | int }}"
+          headers:
+            Content-Type: "application/json"
+
+  - platform: template
+    name: "Sunny Water Dose [s]"
+    id: num_water_dose
+    unit_of_measurement: "s"
+    min_value: 5
+    max_value: 99
+    step: 1
+    initial_value: 10
+    optimistic: true
+    set_action:
+      - http_request.post:
+          url: "http://192.168.1.1/setDoseWater/!{{ value | int }}"
+          headers:
+            Content-Type: "application/json"
+
+  - platform: template
+    name: "Sunny Setpoint Coffee [°C]"
+    id: num_setpoint_coffee
+    unit_of_measurement: "°C"
+    min_value: 20
+    max_value: 302
+    step: 1
+    initial_value: 94
+    optimistic: true
+    set_action:
+      - http_request.post:
+          url: "http://192.168.1.1/setpoint_Group/!{{ value | int }}"
+          headers:
+            Content-Type: "application/json"
+
+  - platform: template
+    name: "Sunny Setpoint Steam [°C]"
+    id: num_setpoint_steam
+    unit_of_measurement: "°C"
+    min_value: 20
+    max_value: 302
+    step: 1
+    initial_value: 130
+    optimistic: true
+    set_action:
+      - http_request.post:
+          url: "http://192.168.1.1/setpoint_Service/!{{ value | int }}"
+          headers:
+            Content-Type: "application/json"
+
+  - platform: template
+    name: "Sunny Filter Life"
+    id: num_filter_life
+    unit_of_measurement: "h"
+    min_value: 0
+    max_value: 10000
+    step: 100
+    initial_value: 1000
+    optimistic: true
+    set_action:
+      - http_request.post:
+          url: "http://192.168.1.1/setFiltroAcqua/!{{ value | int }}"
+          headers:
+            Content-Type: "application/json"
+
+switch:
+  - platform: template
+    name: "Sunny Kaffee starten"
+    id: sw_kaffee
+    icon: "mdi:coffee"
+    turn_on_action:
+      - http_request.post:
+          url: "http://192.168.1.1/ON_OFF/!statePower$ON"
+          headers:
+            Content-Type: "application/json"
+      - delay: 1s
+      - logger.log: "Kaffee gestartet"
+    turn_off_action:
+      - http_request.post:
+          url: "http://192.168.1.1/ON_OFF/!statePower$OFF"
+          headers:
+            Content-Type: "application/json"
+      - logger.log: "Kaffee gestoppt"
+
+  - platform: template
+    name: "Sunny Dampf ein"
+    id: sw_dampf
+    icon: "mdi:steam"
+    turn_on_action:
+      - http_request.post:
+          url: "http://192.168.1.1/EnableService/!1"
+          headers:
+            Content-Type: "application/json"
+    turn_off_action:
+      - http_request.post:
+          url: "http://192.168.1.1/EnableService/!0"
+          headers:
+            Content-Type: "application/json"
+
+  - platform: template
+    name: "Sunny Eco Mode"
+    id: sw_eco
+    icon: "mdi:leaf"
+    turn_on_action:
+      - http_request.post:
+          url: "http://192.168.1.1/EnableECO/!1"
+          headers:
+            Content-Type: "application/json"
+    turn_off_action:
+      - http_request.post:
+          url: "http://192.168.1.1/EnableECO/!0"
+          headers:
+            Content-Type: "application/json"
+
+  - platform: template
+    name: "Sunny Standby"
+    id: sw_standby
+    icon: "mdi:sleep"
+    turn_on_action:
+      - http_request.post:
+          url: "http://192.168.1.1/EnableStandby/!1"
+          headers:
+            Content-Type: "application/json"
+    turn_off_action:
+      - http_request.post:
+          url: "http://192.168.1.1/EnableStandby/!0"
+          headers:
+            Content-Type: "application/json"
+
+  - platform: template
+    name: "Sunny Neustart"
+    id: sw_neustart
+    icon: "mdi:restart"
+    turn_on_action:
+      - http_request.post:
+          url: "http://192.168.1.1/Riavvio/"
+          headers:
+            Content-Type: "application/json"
+      - delay: 2s
+      - logger.log: "Neustart eingeleitet"
