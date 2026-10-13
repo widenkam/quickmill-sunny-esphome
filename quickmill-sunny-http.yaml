@@ -6,7 +6,8 @@ esphome:
 wifi:
   ssid: "Quickmill5D"
   password: "2046quickmill24"
-  hidden: true
+  retries: 20
+  reconnect_interval: 30s
 
 logger:
 
